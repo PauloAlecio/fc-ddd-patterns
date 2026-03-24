@@ -124,7 +124,7 @@ Tests:       43 passed, 43 total
 
 ## Autor
 
-Paulo Alecio
+Paulo Alécio
 
 ## Licença
 
