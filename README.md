@@ -39,7 +39,7 @@ src/
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/devfullcycle/fc-ddd-patterns.git
+git clone https://github.com/PauloAlecio/fc-ddd-patterns.git
 cd fc-ddd-patterns
 ```
 
