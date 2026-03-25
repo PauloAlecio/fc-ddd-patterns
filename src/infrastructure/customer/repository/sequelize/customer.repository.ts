@@ -32,7 +32,7 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
         where: {
           id: entity.id,
         },
-      }
+      },
     );
   }
 
@@ -49,34 +49,40 @@ export default class CustomerRepository implements CustomerRepositoryInterface {
       throw new Error("Customer not found");
     }
 
-    const customer = new Customer(id, customerModel.name);
     const address = new Address(
       customerModel.street,
       customerModel.number,
       customerModel.zipcode,
-      customerModel.city
+      customerModel.city,
     );
-    customer.changeAddress(address);
-    return customer;
+
+    return Customer.reconstitute(
+      customerModel.id,
+      customerModel.name,
+      address,
+      customerModel.active,
+      customerModel.rewardPoints,
+    );
   }
 
   async findAll(): Promise<Customer[]> {
     const customerModels = await CustomerModel.findAll();
 
     const customers = customerModels.map((customerModels) => {
-      let customer = new Customer(customerModels.id, customerModels.name);
-      customer.addRewardPoints(customerModels.rewardPoints);
       const address = new Address(
         customerModels.street,
         customerModels.number,
         customerModels.zipcode,
-        customerModels.city
+        customerModels.city,
       );
-      customer.changeAddress(address);
-      if (customerModels.active) {
-        customer.activate();
-      }
-      return customer;
+
+      return Customer.reconstitute(
+        customerModels.id,
+        customerModels.name,
+        address,
+        customerModels.active,
+        customerModels.rewardPoints,
+      );
     });
 
     return customers;
