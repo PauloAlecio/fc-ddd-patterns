@@ -2,9 +2,13 @@
 
 Implementação completa do repositório de pedidos (OrderRepository) seguindo os padrões de **Domain Driven Design (DDD)** e **Test Driven Development (TDD)**.
 
+Inclui também a implementação de **Domain Events** para o agregado Customer com eventos de criação e atualização de endereço.
+
 ## Objetivo
 
 Completar a implementação da camada de infraestrutura de uma aplicação de vendas, garantindo que o repositório de pedidos funcione exatamente como definido em sua interface.
+
+Implementar Domain Events (padrão DDD) para permitir reação automática a mudanças de estado do agregado Customer.
 
 ## Tecnologias
 
@@ -114,13 +118,107 @@ Arquivo: `src/infrastructure/order/repository/sequilize/order.repository.spec.ts
 - **Repository Pattern**: Abstração de dados com interface `RepositoryInterface<T>`
 - **TDD (Test Driven Development)**: Toda implementação validada por testes automatizados
 - **Entity Reconstruction**: Conversão correta de Models Sequelize para Entities do domínio
+- **Domain Events**: Implementação de eventos de domínio para reação a mudanças de estado
+
+## Domain Events - Customer
+
+### Eventos Implementados
+
+#### 1. **CustomerCreatedEvent**
+
+- **Gatilho**: Disparado quando um novo Customer é criado
+- **Handlers**:
+  - `EnviaConsoleLog1Handler`: Imprime "Esse é o primeiro console.log do evento: CustomerCreated"
+  - `EnviaConsoleLog2Handler`: Imprime "Esse é o segundo console.log do evento: CustomerCreated"
+
+#### 2. **CustomerAddressChangedEvent**
+
+- **Gatilho**: Disparado quando o endereço do Customer é alterado
+- **Dados**: id, nome e novo endereço do cliente
+- **Handler**:
+  - `EnviaConsoleLogHandler`: Imprime "Endereço do cliente: {id}, {nome} alterado para: {endereco}"
+
+### Estrutura de Arquivos
+
+```
+src/domain/customer/
+├── entity/
+│   ├── customer.ts                    # Entidade com suporte a eventos
+│   └── customer.spec.ts               # Testes da entidade
+├── event/
+│   ├── customer-created.event.ts      # Evento de criação
+│   ├── customer-address-changed.event.ts  # Evento de mudança de endereço
+│   ├── customer-events.spec.ts        # Testes dos eventos
+│   └── handler/
+│       ├── envia-console-log-1.handler.ts
+│       ├── envia-console-log-2.handler.ts
+│       └── envia-console-log.handler.ts
+```
+
+### Como Usar
+
+```typescript
+import EventDispatcher from "../../@shared/event/event-dispatcher";
+import Customer from "../entity/customer";
+import EnviaConsoleLog1Handler from "../event/handler/envia-console-log-1.handler";
+import EnviaConsoleLog2Handler from "../event/handler/envia-console-log-2.handler";
+import EnviaConsoleLogHandler from "../event/handler/envia-console-log.handler";
+
+// Cria dispatcher e registra handlers
+const eventDispatcher = new EventDispatcher();
+eventDispatcher.register("CustomerCreatedEvent", new EnviaConsoleLog1Handler());
+eventDispatcher.register("CustomerCreatedEvent", new EnviaConsoleLog2Handler());
+eventDispatcher.register(
+  "CustomerAddressChangedEvent",
+  new EnviaConsoleLogHandler(),
+);
+
+// Cria novo customer (dispara CustomerCreatedEvent)
+const customer = new Customer("1", "John Doe");
+
+// Dispara eventos
+customer.events.forEach((event) => {
+  eventDispatcher.notify(event);
+});
+
+// Mudar endereço (dispara CustomerAddressChangedEvent)
+const address = new Address("Street 1", 123, "13330-250", "São Paulo");
+customer.changeAddress(address);
+
+// Dispara novo evento
+eventDispatcher.notify(customer.events[1]);
+
+// Limpa eventos após processar
+customer.clearEvents();
+```
+
+### Testes dos Domain Events
+
+```bash
+# Rodar testes do Customer entity
+npm test -- customer.entity.spec.ts
+
+# Rodar testes dos eventos
+npm test -- customer-events.spec.ts
+```
 
 ## Status dos Testes
 
 ```
-Test Suites: 12 passed, 12 total
-Tests:       43 passed, 43 total
+Test Suites: 13 passed, 13 total
+Tests:       52 passed, 52 total
+Snapshots:   0 total
 ```
+
+### Testes Inclusos
+
+- ✅ Customer entity tests (com Domain Events)
+- ✅ Domain Events tests
+- ✅ Order Repository tests
+- ✅ Product Repository tests
+- ✅ Customer Repository tests
+- ✅ Event Dispatcher tests
+- ✅ Factory tests
 
 ## Autor
 
