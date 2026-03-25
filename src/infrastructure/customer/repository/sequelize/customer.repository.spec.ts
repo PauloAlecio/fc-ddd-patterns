@@ -72,6 +72,7 @@ describe("Customer repository test", () => {
     const customer = new Customer("123", "Customer 1");
     const address = new Address("Street 1", 1, "Zipcode 1", "City 1");
     customer.Address = address;
+    customer.clearEvents();
     await customerRepository.create(customer);
 
     const customerResult = await customerRepository.find(customer.id);
@@ -94,11 +95,13 @@ describe("Customer repository test", () => {
     customer1.Address = address1;
     customer1.addRewardPoints(10);
     customer1.activate();
+    customer1.clearEvents();
 
     const customer2 = new Customer("456", "Customer 2");
     const address2 = new Address("Street 2", 2, "Zipcode 2", "City 2");
     customer2.Address = address2;
     customer2.addRewardPoints(20);
+    customer2.clearEvents();
 
     await customerRepository.create(customer1);
     await customerRepository.create(customer2);
